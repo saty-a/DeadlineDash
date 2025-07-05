@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'task_bloc.dart';
+import 'task_event.dart';
+import 'task_state.dart';
+import 'task.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,116 +12,190 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DeadlineDash',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: BlocProvider(
+        create: (_) => TaskBloc(),
+        child: const TaskListScreen(),
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class TaskListScreen extends StatelessWidget {
+  const TaskListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      appBar: AppBar(title: const Text('Tasks')),
+      body: BlocBuilder<TaskBloc, TaskState>(
+        builder: (context, state) {
+          if (state.tasks.isEmpty) {
+            return const Center(child: Text('No tasks yet.'));
+          }
+          return ListView.builder(
+            itemCount: state.tasks.length,
+            itemBuilder: (context, index) {
+              final task = state.tasks[index];
+              final remaining = task.deadline.difference(DateTime.now());
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text(task.name),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Deadline: ${task.deadline.toLocal().toString().split(' ')[0]}',
+                      ),
+                      Text(
+                        'Remaining: ${_formatRemaining(remaining)}',
+                        style: TextStyle(
+                          color:
+                              remaining.isNegative ? Colors.red : Colors.green,
+                          fontSize: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: () => _showAddTaskSheet(context),
+        tooltip: 'Add Task',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
+  }
+
+  String _formatRemaining(Duration d) {
+    if (d.isNegative) return 'Expired';
+    int days = d.inDays;
+    int hours = d.inHours % 24;
+    int minutes = d.inMinutes % 60;
+    int seconds = d.inSeconds % 60;
+    String dayStr = '$days Day${days == 1 ? '' : 's'}';
+    String hourStr =
+        '${hours.toString().padLeft(2, '0')} Hour${hours == 1 ? '' : 's'}';
+    String minStr =
+        '${minutes.toString().padLeft(2, '0')} Minute${minutes == 1 ? '' : 's'}';
+    String secStr =
+        '${seconds.toString().padLeft(2, '0')} Second${seconds == 1 ? '' : 's'}';
+    debugPrint('$dayStr:$hourStr:$minStr:$secStr');
+    return '$dayStr $hourStr $minStr $secStr';
+  }
+
+  void _showAddTaskSheet(BuildContext context) {
+    final taskBloc = context.read<TaskBloc>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder:
+          (context) => BlocProvider.value(
+            value: taskBloc,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 24,
+              ),
+              child: _AddTaskForm(),
+            ),
+          ),
+    );
+  }
+}
+
+class _AddTaskForm extends StatefulWidget {
+  @override
+  State<_AddTaskForm> createState() => _AddTaskFormState();
+}
+
+class _AddTaskFormState extends State<_AddTaskForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  DateTime? _selectedDeadline;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: _nameController,
+            decoration: const InputDecoration(labelText: 'Task Name'),
+            validator:
+                (value) =>
+                    value == null || value.isEmpty ? 'Enter a task name' : null,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _selectedDeadline == null
+                      ? 'No deadline selected'
+                      : 'Deadline: ${_selectedDeadline!.toLocal().toString().split(' ')[0]}',
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final now = DateTime.now();
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: now,
+                    firstDate: now,
+                    lastDate: DateTime(now.year + 5),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _selectedDeadline = picked;
+                    });
+                  }
+                },
+                child: const Text('Select Deadline'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate() &&
+                  _selectedDeadline != null) {
+                final id = UniqueKey().toString();
+                final task = Task(
+                  id: id,
+                  name: _nameController.text,
+                  deadline: _selectedDeadline!,
+                );
+                context.read<TaskBloc>().add(AddTask(task));
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('Create'),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }
