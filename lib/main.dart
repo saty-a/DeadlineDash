@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
+      debugShowCheckedModeBanner: false,
       home: BlocProvider(
         create: (_) => TaskBloc(),
         child: const TaskListScreen(),
@@ -33,7 +34,19 @@ class TaskListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tasks')),
+      appBar: AppBar(
+        title: const Text('Tasks'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Widget',
+            onPressed: () {
+              final bloc = context.read<TaskBloc>();
+              bloc.refreshHomeWidget();
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {
           if (state.tasks.isEmpty) {
@@ -181,7 +194,8 @@ class _AddTaskFormState extends State<_AddTaskForm> {
                   name: _nameController.text,
                   deadline: _selectedDeadline!,
                 );
-                context.read<TaskBloc>().add(AddTask(task));
+                final bloc = context.read<TaskBloc>();
+                bloc.add(AddTask(task));
                 Navigator.of(context).pop();
               }
             },

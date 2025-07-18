@@ -25,4 +25,16 @@ class Task extends Equatable {
 
   @override
   List<Object?> get props => [id, name, deadline];
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'deadline': '${deadline.toUtc().toIso8601String()}Z',
+  };
+
+  factory Task.fromJson(Map<String, dynamic> json) => Task(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    deadline: DateTime.parse(json['deadline'] as String),
+  );
 } 
