@@ -3,18 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:background="@drawable/widget_background"
-    android:layout_marginBottom="4dp">
+
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="4dp">
 
     <TextView
         android:id="@+id/widget_item_task_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Task Name"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
+        android:textSize="16sp"
+        android:textColor="#222222"
+        android:fontFamily="sans-serif-medium"
         android:maxLines="1"
         android:ellipsize="end" />
 
