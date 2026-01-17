@@ -1,84 +1,239 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logic/bloc/task_bloc.dart';
+import '../../logic/bloc/task_event.dart';
 import '../../logic/bloc/task_state.dart';
+import '../../data/models/task.dart';
 import '../widgets/add_task_form.dart';
+import '../widgets/task_card.dart';
+import '../widgets/empty_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  String _filterOption = 'all'; // all, active, completed, expired
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tasks'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh Widget',
-            onPressed: () {
-              final bloc = context.read<TaskBloc>();
-              bloc.refreshHomeWidget();
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(context),
+          _buildFilterChips(),
+          BlocConsumer<TaskBloc, TaskState>(
+            listener: (context, state) {
+              if (state.status == TaskStatus.error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage ?? 'An error occurred'),
+                    backgroundColor: Colors.red.shade400,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              }
             },
-          ),
-        ],
-      ),
-      body: BlocBuilder<TaskBloc, TaskState>(
-        builder: (context, state) {
-          if (state.tasks.isEmpty) {
-            return const Center(child: Text('No tasks yet.'));
-          }
-          return ListView.builder(
-            itemCount: state.tasks.length,
-            itemBuilder: (context, index) {
-              final task = state.tasks[index];
-              final remaining = task.deadline.difference(DateTime.now());
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  title: Text(task.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Deadline: ${task.deadline.toLocal().toString().split(' ')[0]}',
-                      ),
-                      Text(
-                        'Remaining: ${_formatRemaining(remaining)}',
-                        style: TextStyle(
-                          color:
-                              remaining.isNegative ? Colors.red : Colors.green,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+            builder: (context, state) {
+              if (state.status == TaskStatus.loading && state.tasks.isEmpty) {
+                return const SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              final filteredTasks = _getFilteredTasks(state.tasks);
+
+              if (filteredTasks.isEmpty) {
+                return SliverFillRemaining(
+                  child: EmptyState(
+                    filterOption: _filterOption,
+                    onReset: () => setState(() => _filterOption = 'all'),
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      final task = filteredTasks[index];
+                      return TaskCard(
+                        task: task,
+                        onEdit: () => _showEditTaskSheet(context, task),
+                        onDelete: () => _confirmDelete(context, task),
+                        onToggleComplete: () {
+                          context.read<TaskBloc>().add(
+                            ToggleTaskComplete(task.id),
+                          );
+                        },
+                      );
+                    },
+                    childCount: filteredTasks.length,
                   ),
                 ),
               );
             },
-          );
-        },
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddTaskSheet(context),
-        tooltip: 'Add Task',
-        child: const Icon(Icons.add),
+      floatingActionButton: _buildFAB(context),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: 140,
+      floating: false,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Deadline Dash',
+              style: TextStyle(
+                color: Color(0xFF1A1F36),
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            BlocBuilder<TaskBloc, TaskState>(
+              builder: (context, state) {
+                final activeCount = state.tasks
+                    .where((t) =>
+                !t.isCompleted && t.deadline.isAfter(DateTime.now()))
+                    .length;
+                return Text(
+                  '$activeCount active countdowns',
+                  style: const TextStyle(
+                    color: Color(0xFF8F9BB3),
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh_rounded, color: Color(0xFF1A1F36)),
+          tooltip: 'Refresh Widget',
+          onPressed: () {
+            context.read<TaskBloc>().refreshHomeWidget();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Widget refreshed'),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChips() {
+    return SliverToBoxAdapter(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildFilterChip('All', 'all', Icons.list_rounded),
+              const SizedBox(width: 8),
+              _buildFilterChip('Active', 'active', Icons.play_circle_outline),
+              const SizedBox(width: 8),
+              _buildFilterChip('Completed', 'completed', Icons.check_circle_outline),
+              const SizedBox(width: 8),
+              _buildFilterChip('Expired', 'expired', Icons.timer_off_outlined),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  String _formatRemaining(Duration d) {
-    if (d.isNegative) return 'Expired';
-    int days = d.inDays;
-    int hours = d.inHours % 24;
-    int minutes = d.inMinutes % 60;
-    int seconds = d.inSeconds % 60;
-    String dayStr = '$days d';
-    String hourStr = '${hours.toString().padLeft(2, '0')} h';
-    String minStr = '${minutes.toString().padLeft(2, '0')} m';
-    String secStr = '${seconds.toString().padLeft(2, '0')} s';
-    return '$dayStr $hourStr $minStr $secStr';
+  Widget _buildFilterChip(String label, String value, IconData icon) {
+    final isSelected = _filterOption == value;
+    return FilterChip(
+      selected: isSelected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: isSelected ? Colors.white : const Color(0xFF1A1F36),
+          ),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
+      ),
+      onSelected: (selected) {
+        setState(() => _filterOption = value);
+      },
+      backgroundColor: Colors.white,
+      selectedColor: const Color(0xFF5B67CA),
+      checkmarkColor: Colors.white,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : const Color(0xFF1A1F36),
+        fontWeight: FontWeight.w600,
+      ),
+      elevation: isSelected ? 4 : 0,
+      shadowColor: const Color(0xFF5B67CA).withOpacity(0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected ? const Color(0xFF5B67CA) : const Color(0xFFE4E9F2),
+          width: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFAB(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: () => _showAddTaskSheet(context),
+      icon: const Icon(Icons.timer_outlined),
+      label: const Text('Add Deadline'),
+      backgroundColor: const Color(0xFF5B67CA),
+      elevation: 4,
+    );
+  }
+
+  List<Task> _getFilteredTasks(List<Task> tasks) {
+    final now = DateTime.now();
+    switch (_filterOption) {
+      case 'active':
+        return tasks.where((t) => !t.isCompleted && t.deadline.isAfter(now)).toList();
+      case 'completed':
+        return tasks.where((t) => t.isCompleted).toList();
+      case 'expired':
+        return tasks.where((t) => !t.isCompleted && t.deadline.isBefore(now)).toList();
+      default:
+        return tasks;
+    }
   }
 
   void _showAddTaskSheet(BuildContext context) {
@@ -86,19 +241,54 @@ class HomeScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder:
-          (context) => BlocProvider.value(
-            value: taskBloc,
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 16,
-                right: 16,
-                top: 24,
-              ),
-              child: const AddTaskForm(),
-            ),
+      backgroundColor: Colors.transparent,
+      builder: (context) => BlocProvider.value(
+        value: taskBloc,
+        child: const AddTaskForm(),
+      ),
+    );
+  }
+
+  void _showEditTaskSheet(BuildContext context, Task task) {
+    final taskBloc = context.read<TaskBloc>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BlocProvider.value(
+        value: taskBloc,
+        child: AddTaskForm(task: task),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Task task) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Task'),
+        content: Text('Are you sure you want to delete "${task.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              this.context.read<TaskBloc>().add(DeleteTask(task.id));
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade400,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 }
