@@ -1,4 +1,4 @@
-package com.sun2.deadlinedash
+package com.sun2.chessclock
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
