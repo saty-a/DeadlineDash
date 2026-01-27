@@ -7,6 +7,7 @@ import '../../data/models/task.dart';
 import '../widgets/add_task_form.dart';
 import '../widgets/task_card.dart';
 import '../widgets/empty_state.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -96,17 +97,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
         title: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Deadline Dash',
               style: TextStyle(
-                color: Color(0xFF1A1F36),
+                color: Theme.of(context).textTheme.titleLarge?.color,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -119,8 +120,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     .length;
                 return Text(
                   '$activeCount active countdowns',
-                  style: const TextStyle(
-                    color: Color(0xFF8F9BB3),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
                   ),
@@ -132,18 +133,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.refresh_rounded, color: Color(0xFF1A1F36)),
-          tooltip: 'Refresh Widget',
+          icon: Icon(Icons.settings_rounded, color: Theme.of(context).appBarTheme.titleTextStyle?.color),
+          tooltip: 'Settings',
           onPressed: () {
-            context.read<TaskBloc>().refreshHomeWidget();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Widget refreshed'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                duration: const Duration(seconds: 1),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
               ),
             );
           },
@@ -184,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Icon(
             icon,
             size: 18,
-            color: isSelected ? Colors.white : const Color(0xFF1A1F36),
+            color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
           ),
           const SizedBox(width: 6),
           Text(label),
@@ -193,19 +189,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onSelected: (selected) {
         setState(() => _filterOption = value);
       },
-      backgroundColor: Colors.white,
-      selectedColor: const Color(0xFF5B67CA),
+      backgroundColor: Theme.of(context).cardColor,
+      selectedColor: Theme.of(context).primaryColor,
       checkmarkColor: Colors.white,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : const Color(0xFF1A1F36),
+        color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
         fontWeight: FontWeight.w600,
       ),
       elevation: isSelected ? 4 : 0,
-      shadowColor: const Color(0xFF5B67CA).withOpacity(0.3),
+      shadowColor: Theme.of(context).primaryColor.withOpacity(0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: isSelected ? const Color(0xFF5B67CA) : const Color(0xFFE4E9F2),
+          color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).dividerColor,
           width: 1.5,
         ),
       ),
@@ -217,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onPressed: () => _showAddTaskSheet(context),
       icon: const Icon(Icons.timer_outlined),
       label: const Text('Add Deadline'),
-      backgroundColor: const Color(0xFF5B67CA),
+      backgroundColor: Theme.of(context).primaryColor,
       elevation: 4,
     );
   }

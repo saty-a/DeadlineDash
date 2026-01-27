@@ -66,9 +66,9 @@ class _AddTaskFormState extends State<AddTaskForm>
       child: SlideTransition(
         position: _slideAnimation,
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(28),
           ),
           child: Padding(
             padding: EdgeInsets.only(
@@ -100,7 +100,7 @@ class _AddTaskFormState extends State<AddTaskForm>
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: const Color(0xFFE4E9F2),
+        color: Theme.of(context).dividerColor,
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -112,22 +112,22 @@ class _AddTaskFormState extends State<AddTaskForm>
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF5B67CA).withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             isEditing ? Icons.edit_calendar_outlined : Icons.timer_outlined,
-            color: const Color(0xFF5B67CA),
+            color: Theme.of(context).primaryColor,
             size: 24,
           ),
         ),
         const SizedBox(width: 16),
         Text(
           isEditing ? 'Edit Deadline' : 'New Deadline',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1A1F36),
+            color: Theme.of(context).textTheme.titleLarge?.color,
           ),
         ),
       ],
@@ -149,24 +149,24 @@ class _AddTaskFormState extends State<AddTaskForm>
             style: const TextStyle(fontSize: 16),
             decoration: InputDecoration(
               labelText: 'Title',
-              labelStyle: const TextStyle(color: Color(0xFF8F9BB3)),
+              labelStyle: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
               hintText: 'e.g., Project submission, Meeting',
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.title_rounded,
-                color: Color(0xFF5B67CA),
+                color: Theme.of(context).primaryColor,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFFE4E9F2)),
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFFE4E9F2)),
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: Color(0xFF5B67CA),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
                   width: 2,
                 ),
               ),
@@ -175,7 +175,7 @@ class _AddTaskFormState extends State<AddTaskForm>
                 borderSide: BorderSide(color: Colors.red.shade400),
               ),
               filled: true,
-              fillColor: const Color(0xFFF5F7FA),
+              fillColor: Theme.of(context).scaffoldBackgroundColor,
             ),
             validator: (value) =>
             value == null || value.trim().isEmpty
@@ -189,32 +189,32 @@ class _AddTaskFormState extends State<AddTaskForm>
             style: const TextStyle(fontSize: 16),
             decoration: InputDecoration(
               labelText: 'Description (Optional)',
-              labelStyle: const TextStyle(color: Color(0xFF8F9BB3)),
+              labelStyle: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
               hintText: 'Add notes or details about this deadline',
-              prefixIcon: const Padding(
-                padding: EdgeInsets.only(bottom: 48),
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(bottom: 48),
                 child: Icon(
                   Icons.description_outlined,
-                  color: Color(0xFF5B67CA),
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFFE4E9F2)),
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFFE4E9F2)),
+                borderSide: BorderSide(color: Theme.of(context).dividerColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(
-                  color: Color(0xFF5B67CA),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
                   width: 2,
                 ),
               ),
               filled: true,
-              fillColor: const Color(0xFFF5F7FA),
+              fillColor: Theme.of(context).scaffoldBackgroundColor,
             ),
           ),
           const SizedBox(height: 28),
@@ -228,17 +228,17 @@ class _AddTaskFormState extends State<AddTaskForm>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    side: const BorderSide(
-                      color: Color(0xFFE4E9F2),
+                    side: BorderSide(
+                      color: Theme.of(context).dividerColor,
                       width: 1.5,
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Cancel',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF8F9BB3),
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
                   ),
                 ),
@@ -249,7 +249,7 @@ class _AddTaskFormState extends State<AddTaskForm>
                 child: ElevatedButton(
                   onPressed: _handleSubmit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5B67CA),
+                    backgroundColor: Theme.of(context).primaryColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -304,73 +304,73 @@ class _AddTaskFormState extends State<AddTaskForm>
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F7FA),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE4E9F2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Theme.of(context).dividerColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.calendar_today_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Date',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _formatDateShort(_selectedDate),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (isToday)
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.only(top: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B67CA).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.orange.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Icon(
-                    Icons.calendar_today_rounded,
-                    color: Color(0xFF5B67CA),
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Date',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8F9BB3),
-                    fontWeight: FontWeight.w500,
+                  child: Text(
+                    'Today',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.orange.shade700,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _formatDateShort(_selectedDate),
-              style: const TextStyle(
-                fontSize: 15,
-                color: Color(0xFF1A1F36),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            if (isToday)
-              Container(
-                margin: const EdgeInsets.only(top: 6),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Today',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.orange.shade700,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildTimeSelector() {
     return InkWell(
@@ -379,9 +379,9 @@ class _AddTaskFormState extends State<AddTaskForm>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F7FA),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE4E9F2)),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,21 +391,21 @@ class _AddTaskFormState extends State<AddTaskForm>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B67CA).withOpacity(0.1),
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.access_time_rounded,
-                    color: Color(0xFF5B67CA),
+                    color: Theme.of(context).primaryColor,
                     size: 16,
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'Time',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF8F9BB3),
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -414,9 +414,9 @@ class _AddTaskFormState extends State<AddTaskForm>
             const SizedBox(height: 8),
             Text(
               _formatTime(_selectedTime),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
-                color: Color(0xFF1A1F36),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -436,11 +436,12 @@ class _AddTaskFormState extends State<AddTaskForm>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5B67CA),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Theme.of(context).primaryColor,
+              primary: Theme.of(context).primaryColor,
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Color(0xFF1A1F36),
+              surface: Theme.of(context).cardColor,
+              onSurface: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
             ),
           ),
           child: child!,
@@ -460,11 +461,12 @@ class _AddTaskFormState extends State<AddTaskForm>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5B67CA),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Theme.of(context).primaryColor,
+              primary: Theme.of(context).primaryColor,
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Color(0xFF1A1F36),
+              surface: Theme.of(context).cardColor,
+              onSurface: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
             ),
           ),
           child: child!,

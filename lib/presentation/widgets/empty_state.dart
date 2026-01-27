@@ -24,31 +24,31 @@ class EmptyState extends StatelessWidget {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: const Color(0xFF5B67CA).withOpacity(0.1),
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 emptyStateConfig['icon'] as IconData,
                 size: 80,
-                color: const Color(0xFF5B67CA).withOpacity(0.6),
+                color: Theme.of(context).primaryColor.withOpacity(0.6),
               ),
             ),
             const SizedBox(height: 32),
             Text(
               emptyStateConfig['title'] as String,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1F36),
+                color: Theme.of(context).textTheme.titleLarge?.color,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
               emptyStateConfig['message'] as String,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFF8F9BB3),
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
@@ -60,7 +60,7 @@ class EmptyState extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Show All Deadlines'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5B67CA),
+                  backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,

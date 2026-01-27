@@ -65,7 +65,7 @@ class TaskCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -106,14 +106,14 @@ class TaskCard extends StatelessWidget {
                                 Icon(
                                   Icons.event_outlined,
                                   size: 14,
-                                  color: const Color(0xFF8F9BB3),
+                                  color: Theme.of(context).textTheme.bodySmall?.color,
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
                                   _formatDate(task.deadline),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF8F9BB3),
+                                    color: Theme.of(context).textTheme.bodySmall?.color,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -122,7 +122,7 @@ class TaskCard extends StatelessWidget {
                                   _formatTime(task.deadline),
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: const Color(0xFF5B67CA).withOpacity(0.8),
+                                    color: Theme.of(context).primaryColor.withOpacity(0.8),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -135,7 +135,7 @@ class TaskCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildCountdownTimer(remaining, isExpired),
+                  _buildCountdownTimer(context, remaining, isExpired),
                   const SizedBox(height: 16),
                   Text(
                     task.name,
@@ -143,8 +143,8 @@ class TaskCard extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: task.isCompleted
-                          ? const Color(0xFF8F9BB3)
-                          : const Color(0xFF1A1F36),
+                          ? Theme.of(context).textTheme.bodySmall?.color
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       decoration: task.isCompleted
                           ? TextDecoration.lineThrough
                           : null,
@@ -156,7 +156,7 @@ class TaskCard extends StatelessWidget {
                       task.description!,
                       style: TextStyle(
                         fontSize: 14,
-                        color: const Color(0xFF8F9BB3).withOpacity(0.8),
+                        color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.8),
                         height: 1.4,
                       ),
                       maxLines: 2,
@@ -181,12 +181,12 @@ class TaskCard extends StatelessWidget {
         height: 28,
         decoration: BoxDecoration(
           color: task.isCompleted
-              ? const Color(0xFF5B67CA)
+              ? Theme.of(context).primaryColor
               : Colors.transparent,
           border: Border.all(
             color: task.isCompleted
-                ? const Color(0xFF5B67CA)
-                : const Color(0xFFE4E9F2),
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
             width: 2,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -202,14 +202,14 @@ class TaskCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCountdownTimer(Duration remaining, bool isExpired) {
+  Widget _buildCountdownTimer(BuildContext context, Duration remaining, bool isExpired) {
     final color = task.isCompleted
-        ? const Color(0xFF8F9BB3)
+        ? Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey
         : isExpired
         ? Colors.red.shade600
         : remaining.inHours < 24
         ? Colors.orange.shade700
-        : const Color(0xFF5B67CA);
+        : Theme.of(context).primaryColor;
 
     final bgColor = color.withOpacity(0.08);
 
@@ -252,7 +252,7 @@ class TaskCard extends StatelessWidget {
 
   Widget _buildActionButtons(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF8F9BB3)),
+      icon: Icon(Icons.more_vert_rounded, color: Theme.of(context).textTheme.bodySmall?.color),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         if (value == 'edit') {
@@ -262,13 +262,13 @@ class TaskCard extends StatelessWidget {
         }
       },
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit_outlined, size: 20, color: Color(0xFF5B67CA)),
-              SizedBox(width: 12),
-              Text('Edit'),
+              Icon(Icons.edit_outlined, size: 20, color: Theme.of(context).primaryColor),
+              const SizedBox(width: 12),
+              const Text('Edit'),
             ],
           ),
         ),
