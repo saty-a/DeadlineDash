@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:deadlinedash/main.dart';
-import 'package:deadlinedash/data/repositories/task_repository.dart';
+import 'package:deadlineflow/main.dart';
+import 'package:deadlineflow/data/repositories/task_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

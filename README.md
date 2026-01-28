@@ -1,6 +1,6 @@
-# deadlinedash
+# deadlineflow
 
-DeadlineDash
+DeadlineFlow
 
 ## Getting Started
 

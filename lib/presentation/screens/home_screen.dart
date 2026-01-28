@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Deadline Dash',
+              'Deadline Flow',
               style: TextStyle(
                 color: Theme.of(context).textTheme.titleLarge?.color,
                 fontSize: 28,

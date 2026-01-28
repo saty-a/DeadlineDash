@@ -15,9 +15,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String _appVersion = 'Loading...';
 
-  // TODO: Update these URLs with your actual Privacy Policy and Terms of Service URLs
-  static const String _privacyPolicyUrl = 'https://www.example.com/privacy-policy';
-  static const String _termsOfServiceUrl = 'https://www.example.com/terms-of-service';
+  static const String _privacyPolicyUrl = 'https://sites.google.com/view/deadlineflow/home';
   static const String _playStorePackageName = 'com.sun2.chessclock';
 
   @override
@@ -46,18 +44,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (context) => const WebViewScreen(
           title: 'Privacy Policy',
           url: _privacyPolicyUrl,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openTermsOfService() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const WebViewScreen(
-          title: 'Terms of Service',
-          url: _termsOfServiceUrl,
         ),
       ),
     );
@@ -213,12 +199,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.privacy_tip_outlined,
                     title: 'Privacy Policy',
                     onTap: _openPrivacyPolicy,
-                  ),
-                  const Divider(height: 1, indent: 56),
-                  _buildSettingsTile(
-                    icon: Icons.description_outlined,
-                    title: 'Terms of Service',
-                    onTap: _openTermsOfService,
                   ),
                   const Divider(height: 1, indent: 56),
                   _buildSettingsTile(

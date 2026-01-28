@@ -1,6 +1,6 @@
 {
-    "name": "deadlinedash",
-    "short_name": "deadlinedash",
+    "name": "DeadlineFlow",
+    "short_name": "DeadlineFlow",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
