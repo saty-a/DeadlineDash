@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'package:hive_ce/hive.dart';
 import 'package:home_widget/home_widget.dart';
 import '../models/task.dart';
@@ -8,7 +9,17 @@ class TaskRepository {
   static const String _widgetTasksKey = 'tasks';
   static const String _widgetTaskListKey = 'task_list';
   static const String _androidWidgetProvider = 'HomeWidgetProvider';
-  static const String _iOSWidgetName = 'HomeWidgetExtension';
+  static const String _iOSWidgetName = 'DeadlineFlow';
+  static const String _appGroupId = 'group.com.sun2.chessclock';
+
+  /// Check if the current platform supports home_widget (iOS/Android only)
+  bool get _isHomeWidgetSupported => Platform.isIOS || Platform.isAndroid;
+
+  Future<void> initialize() async {
+    if (_isHomeWidgetSupported) {
+      await HomeWidget.setAppGroupId(_appGroupId);
+    }
+  }
 
   Future<Box<Task>> _getBox() async {
     if (!Hive.isBoxOpen(_tasksBoxName)) {
@@ -22,25 +33,33 @@ class TaskRepository {
     await box.clear();
     await box.addAll(tasks);
 
-    // Sort tasks by deadline
-    tasks.sort((a, b) => a.deadline.compareTo(b.deadline));
+    // Sort tasks using custom logic
+    sortTasks(tasks);
 
-    // Filter out expired tasks for the widget only
+    // Filter out expired and completed tasks for the widget only
     final now = DateTime.now();
-    final activeTasks = tasks.where((t) => t.deadline.isAfter(now)).toList();
+    final activeTasks =
+        tasks.where((t) => !t.isCompleted && t.deadline.isAfter(now)).toList();
 
     // Sync to Widget (widget uses its own storage, so we still convert to JSON for it)
-    final tasksJson = jsonEncode(activeTasks.map((t) => t.toJson()).toList());
-    await HomeWidget.saveWidgetData<String>(_widgetTasksKey, tasksJson);
-    await updateHomeWidget(activeTasks);
+    if (_isHomeWidgetSupported) {
+      final tasksJson = jsonEncode(activeTasks.map((t) => t.toJson()).toList());
+      await HomeWidget.setAppGroupId(_appGroupId);
+      await HomeWidget.saveWidgetData<String>(_widgetTasksKey, tasksJson);
+      await updateHomeWidget(activeTasks);
+    }
   }
 
   Future<List<Task>> loadTasks() async {
     final box = await _getBox();
-    return box.values.toList();
+    final tasks = box.values.toList();
+    sortTasks(tasks);
+    return tasks;
   }
 
   Future<void> updateHomeWidget(List<Task> tasks) async {
+    if (!_isHomeWidgetSupported) return;
+
     String formatRemaining(DateTime deadline) {
       final d = deadline.difference(DateTime.now());
       if (d.isNegative) return 'Expired';
@@ -51,7 +70,9 @@ class TaskRepository {
       return '${days}d:${hours.toString().padLeft(2, '0')}h:${minutes.toString().padLeft(2, '0')}m:${seconds.toString().padLeft(2, '0')}s';
     }
 
-    final taskListString = tasks
+    final activeTasks = tasks.where((t) => !t.isCompleted).toList();
+
+    final taskListString = activeTasks
         .map((t) => '${t.name}\n${formatRemaining(t.deadline)}')
         .join('\n\n');
 
@@ -62,7 +83,7 @@ class TaskRepository {
     Task? nearestTask;
     Duration? smallestDiff;
 
-    for (final task in tasks) {
+    for (final task in activeTasks) {
       final diff = task.deadline.difference(now);
       if (!diff.isNegative) {
         if (smallestDiff == null || diff < smallestDiff) {
@@ -97,5 +118,24 @@ class TaskRepository {
       name: _androidWidgetProvider,
       iOSName: _iOSWidgetName,
     );
+  }
+
+  void sortTasks(List<Task> tasks) {
+    final now = DateTime.now();
+    tasks.sort((a, b) {
+      int getRank(Task t) {
+        if (!t.isCompleted && t.deadline.isAfter(now)) return 1; // Active
+        if (t.isCompleted) return 2; // Completed
+        return 3; // Expired
+      }
+
+      int rankA = getRank(a);
+      int rankB = getRank(b);
+
+      if (rankA != rankB) {
+        return rankA.compareTo(rankB);
+      }
+      return a.deadline.compareTo(b.deadline);
+    });
   }
 }

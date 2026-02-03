@@ -44,6 +44,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   Future<void> _onAddTask(AddTask event, Emitter<TaskState> emit) async {
     try {
       final updatedTasks = List<Task>.from(state.tasks)..add(event.task);
+      _repository.sortTasks(updatedTasks);
       emit(TaskState(
         tasks: updatedTasks,
         timestamp: DateTime.now(),
@@ -63,6 +64,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updatedTasks = state.tasks.map((task) {
         return task.id == event.task.id ? event.task : task;
       }).toList();
+      _repository.sortTasks(updatedTasks);
       emit(TaskState(
         tasks: updatedTasks,
         timestamp: DateTime.now(),
@@ -82,6 +84,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updatedTasks = state.tasks
           .where((task) => task.id != event.taskId)
           .toList();
+      _repository.sortTasks(updatedTasks);
       emit(TaskState(
         tasks: updatedTasks,
         timestamp: DateTime.now(),
@@ -105,6 +108,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         }
         return task;
       }).toList();
+      _repository.sortTasks(updatedTasks);
       emit(TaskState(
         tasks: updatedTasks,
         timestamp: DateTime.now(),

@@ -16,6 +16,7 @@ void main() async {
   Hive.registerAdapter(TaskAdapter());
 
   final taskRepository = TaskRepository();
+  await taskRepository.initialize();
   runApp(MyApp(taskRepository: taskRepository));
 }
 

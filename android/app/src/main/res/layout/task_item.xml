@@ -18,7 +18,7 @@
         android:maxLines="1"
         android:ellipsize="end" />
 
-    <!-- Days + Chronometer Layout -->
+    <!-- Days + Hours + Chronometer Layout -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,19 +30,31 @@
             android:id="@+id/widget_item_days"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0d"
+            android:text="0d:"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#D32F2F"
-            android:layout_marginEnd="8dp" />
+            android:textColor="#FF9800"
+            android:fontFamily="monospace"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/widget_item_hours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00h:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FF9800"
+            android:fontFamily="monospace" />
 
         <Chronometer
             android:id="@+id/widget_item_chronometer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#D32F2F"
+            android:textColor="#FF9800"
             android:textSize="18sp"
-            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
             android:countDown="true" />
     </LinearLayout>
 
